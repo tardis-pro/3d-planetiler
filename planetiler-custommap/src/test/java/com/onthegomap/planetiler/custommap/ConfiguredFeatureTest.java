@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.locationtech.jts.geom.Puntal;
 
 class ConfiguredFeatureTest {
   private PlanetilerConfig planetilerConfig = PlanetilerConfig.defaults();
@@ -263,6 +264,15 @@ class ConfiguredFeatureTest {
     testPolygon(TEST_RESOURCE, "tag_attribute.yml", waterTags, f -> {
       var attr = f.getAttrsAtZoom(14);
       assertEquals("water", attr.get("natural"));
+    }, 1);
+  }
+
+  @Test
+  void testTagNullValueAttributeTest() {
+    testPolygon(TEST_RESOURCE, "tag_attribute_null.yml", waterTags, f -> {
+      var attr = f.getAttrsAtZoom(14);
+      assertNull(attr.get("non_existent"));
+      assertNull(attr.get("non_existent_typed"));
     }, 1);
   }
 
@@ -1221,5 +1231,94 @@ class ConfiguredFeatureTest {
         3
       )
     ), loadConfig(config).findFeatureLayer("testLayer").postProcess());
+  }
+
+  @Test
+  void testCentroid() {
+    var config = """
+      sources:
+        osm:
+          type: osm
+          url: geofabrik:rhode-island
+          local_path: data/rhode-island.osm.pbf
+      layers:
+      - id: testLayer
+        features:
+        - source: osm
+          geometry: centroid
+      """;
+    this.planetilerConfig = PlanetilerConfig.from(Arguments.of(Map.of()));
+    testPolygon(config, Map.of(
+      "natural", "water"
+    ), feature -> {
+      assertInstanceOf(Puntal.class, feature.getGeometry());
+    }, 1);
+    testLinestring(config, Map.of(
+      "natural", "water"
+    ), feature -> {
+      assertInstanceOf(Puntal.class, feature.getGeometry());
+    }, 1);
+    testPoint(config, Map.of(
+      "natural", "water"
+    ), feature -> {
+      assertInstanceOf(Puntal.class, feature.getGeometry());
+    }, 1);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"line_centroid", "point_on_line"})
+  void testLineCentroid(String type) {
+    var config = """
+      sources:
+        osm:
+          type: osm
+          url: geofabrik:rhode-island
+          local_path: data/rhode-island.osm.pbf
+      layers:
+      - id: testLayer
+        features:
+        - source: osm
+          geometry: %s
+      """.formatted(type);
+    this.planetilerConfig = PlanetilerConfig.from(Arguments.of(Map.of()));
+    testLinestring(config, Map.of(
+      "natural", "water"
+    ), feature -> {
+      assertInstanceOf(Puntal.class, feature.getGeometry());
+    }, 1);
+  }
+
+  @Test
+  void testWikidataParse() {
+    var config = """
+      sources:
+        osm:
+          type: osm
+          url: geofabrik:rhode-island
+          local_path: data/rhode-island.osm.pbf
+      layers:
+      - id: testLayer
+        features:
+        - source: osm
+          geometry: point
+          attributes:
+          - key: wikidata
+            value: "${feature.tags.wikidata != null ? int(feature.tags.wikidata.replace('Q', '')) : 0}"
+      """;
+    this.planetilerConfig = PlanetilerConfig.from(Arguments.of(Map.of()));
+    testPoint(config, Map.of(
+      "wikidata", "Q235"
+    ), feature -> {
+      assertEquals(Map.of("wikidata", 235L), feature.getAttrsAtZoom(14));
+    }, 1);
+    testPoint(config, Map.of(
+      "wikidata", "235"
+    ), feature -> {
+      assertEquals(Map.of("wikidata", 235L), feature.getAttrsAtZoom(14));
+    }, 1);
+    testPoint(config, Map.of(
+    ), feature -> {
+      assertEquals(Map.of("wikidata", 0L), feature.getAttrsAtZoom(14));
+    }, 1);
   }
 }

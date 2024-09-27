@@ -79,8 +79,7 @@ for more of the backstory.
 
 ## Demo
 
-See the [live demo](https://onthegomap.github.io/planetiler-demo/) of vector tiles created by Planetiler and hosted by
-the [OpenStreetMap Americana Project](https://github.com/ZeLonewolf/openstreetmap-americana/).
+See the [live demo](https://onthegomap.github.io/planetiler-demo/) of vector tiles created by Planetiler and [hosted by OpenStreetMap US](https://github.com/osmus/tileservice).
 
 [![Planetiler Demo Screenshot](./diagrams/demo.png)](https://onthegomap.github.io/planetiler-demo/)
 [© OpenMapTiles](https://www.openmaptiles.org/) [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
@@ -91,7 +90,7 @@ To generate a map of an area using the [OpenMapTiles profile](https://github.com
 you will need:
 
 - Java 21+ (see [CONTRIBUTING.md](CONTRIBUTING.md)) or [Docker](https://docs.docker.com/get-docker/)
-- at least 1GB of free disk space plus 5-10x the size of the `.osm.pbf` file
+- at least 1GB of free SSD disk space plus 5-10x the size of the `.osm.pbf` file
 - at least 0.5x as much free RAM as the input `.osm.pbf` file size
 
 #### To build the map:

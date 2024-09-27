@@ -219,11 +219,12 @@ A feature is a defined set of objects that meet a specified filter criteria.
   of:
   - `point` `line` or `polygon` to pass the original feature through
   - `polygon_centroid` to match on polygons, and emit a point at the center
+  - `line_centroid` to match on lines, and emit a point at the center
+  - `centroid` to match any geometry, and emit a point at the center
   - `polygon_point_on_surface` to match on polygons, and emit an interior point
+  - `point_on_line` to match on lines, and emit a point somewhere along the line
   - `polygon_centroid_if_convex` to match on polygons, and if the polygon is convex emit the centroid, otherwise emit an
     interior point
-- `min_tile_cover_size` - Include objects of a certain geometry size, where 1.0 means "is
-  the same size as a tile at this zoom"
 - `include_when` - A [Boolean Expression](#boolean-expression) which determines the features to include.
   If unspecified, all features from the specified sources are included.
 - `exclude_when` - A [Boolean Expression](#boolean-expression) which determines if a feature that matched the include
@@ -265,6 +266,8 @@ Defines an attribute to include on an output vector tile feature and how to comp
   minimum zoom for each output value.
 - `type` - The [Data Type](#data-type) to coerce the value to, or `match_key` to set this attribute to the key that
   triggered the match in the include expression, or `match_value` to set it to the value for the matching key.
+- `min_tile_cover_size` - Include this attribute only on geometries over a certain size at a given zoom level, where 1.0
+  means the entire width of a tile for lines, or area of a tile for polygons.
 
 To define the value, use one of:
 
